@@ -1,26 +1,40 @@
-import React from 'react';
-import logo from './logo.svg';
-import './App.css';
+import { useEffect } from "react";
+import { useDispatch, useSelector } from "react-redux";
+import {
+  getPendingSelector,
+  getUsersSelector,
+  getErrorSelector,
+} from "./store/users/selectors";
+import { fetchUsersList } from "./store/users/actions";
+import Autocomplete from "./components/Autocomplete";
+import './App.css'
 
-function App() {
+const App = () => {
+  const dispatch = useDispatch();
+  const pending = useSelector(getPendingSelector);
+  const usersInfo = useSelector(getUsersSelector);
+  const error = useSelector(getErrorSelector);
+
+  useEffect(() => {
+    dispatch(fetchUsersList());
+  }, []);
+
+  const renderLoading = () => (<div className="container" ><h1>Loading...</h1></div>)
+  const renderError = () => (<div className="container" ><h1>Error</h1></div>)
+
+  const users = usersInfo.users.map(user=> user.name)
+
   return (
-    <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.tsx</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
-      </header>
+    <div>
+      {pending ? (
+        renderLoading()
+      ) : error ? (
+        renderError()
+      ) : (
+        <Autocomplete options={users} />
+      )}
     </div>
-  );
-}
+);
+};
 
 export default App;
